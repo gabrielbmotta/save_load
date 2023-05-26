@@ -1,6 +1,8 @@
 #include "save_load.h"
 
+#include <iostream>
 #include <map>
+#include <string>
 #include <unordered_map>
 
 using Plaintext::Loader;
@@ -33,40 +35,47 @@ void Loader::loadFromFile(const std::string& file)
 
 void Loader::loadFromFile()
 {
-    if(_infile.is_open()){
+    std::cout << "1\n";
+    if(!_infile.is_open()){
         return;
     }
 
+    std::cout << "2\n";
     std::string line;
 
     bool mid_input = false;
     std::string carryover_data;
     std::string carryover_key;
 
-    while(_infile >> line){
+    while(std::getline(_infile, line)){
+        std::cout << "[READ IN] " << line << "\n";
         if(line.size() > 3 && line[0] == '#' && line[1] == '#' && line[2] == '#'){
             continue;
         }
         if(mid_input){
+            std::cout << "In mid input\n";
             auto ending = line.find(">>>");
             if(ending == std::string::npos){
-                carryover_data += line;
+                carryover_data += " " + line;
                 continue;
             } else if(ending != 0) {
-                carryover_data += line.substr(0, ending);
+                carryover_data += " " + line.substr(0, ending);
             }
             _data[carryover_key] = carryover_data;
             carryover_data.clear();
             carryover_key.clear();
             mid_input = false;
         } else {
+            std::cout << "Not in mid input\n";
             auto equal = line.find("=");
             if(equal == std::string::npos || equal == line.size() - 1){
+                std::cout << "HERE!\n";
                 return;
             }
             auto key = line.substr(0, equal);
-            auto data = line.substr(equal);
+            auto data = line.substr(equal + 1);
             if(data.size() > 3 && data[0] == '<' && data[1] == '<' && data[2] == '<'){
+                data = data.substr(3);
                 auto ending = data.find(">>>");
                 if(ending == std::string::npos){
                     carryover_data = std::move(data);
@@ -74,14 +83,23 @@ void Loader::loadFromFile()
                     mid_input = true;
                     continue;
                 } else if(ending != 3) {
-                   data.substr(0,ending); 
+                    data = data.substr(0,ending); 
                 } else {
                     data = "";
                 }
                 _data[key] = data;
+            } else if(!data.empty()){
+                _data[key] = data;
             }
         }
     }
+}
+
+//==================================================================================================
+
+const std::string& Loader::getValue(const std::string& key)
+{
+    return _data[key];
 }
 
 //==================================================================================================
