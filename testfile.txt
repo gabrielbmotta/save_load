@@ -1,0 +1,5 @@
+ELEMENT1=3
+ELEMENT2=<<<This is a string.>>>
+ELEMENT3=<<<This is a
+multiline
+string>>>
