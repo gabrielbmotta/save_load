@@ -5,6 +5,7 @@
 #include <fstream>
 #include <unordered_map>
 #include <type_traits>
+#include <any>
 
 namespace Plaintext {
 
@@ -17,11 +18,11 @@ public:
 
     void loadFromFile(const std::string& file);
     void loadFromFile();
-    const std::string& getValue(const std::string& key);
+    const std::any& getValue(const std::string& key);
 
 // private:
     std::ifstream _infile;
-    std::unordered_map<std::string, std::string> _data;
+    std::unordered_map<std::string, std::any> _data;
 };
 
 class Saver {
@@ -39,17 +40,13 @@ public:
 
 private:
     std::ofstream _outfile;
-    std::unordered_map<std::string, std::string> _data;
+    std::unordered_map<std::string, std::any> _data;
 };
 
 
 template<typename T>
 void Saver::setValue(const std::string& key, const T& value){
-    if constexpr(std::is_same_v<std::string,T>){
-        _data[key] = value; 
-    } else {
-        _data[key] = std::to_string(value);
-    }
+    _data[key] = value; 
 }
 
 } // namespace Plaintext

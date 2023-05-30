@@ -1,12 +1,25 @@
 #include "save_load.h"
 
+#include <cctype>
 #include <iostream>
 #include <map>
 #include <string>
 #include <unordered_map>
+#include <cstdlib>
 
 using Plaintext::Loader;
 using Plaintext::Saver;
+
+//==================================================================================================
+
+bool isInt(const std::string& str){
+    for(const auto& c : str){
+        if(!std::isdigit(c)){
+            return false;
+        }
+    }
+    return true;
+}
 
 //==================================================================================================
 
@@ -49,7 +62,7 @@ void Loader::loadFromFile()
 
     while(std::getline(_infile, line)){
         std::cout << "[READ IN] " << line << "\n";
-        if(line.size() > 3 && line[0] == '#' && line[1] == '#' && line[2] == '#'){
+        if(line.size() > 0 && line[0] == '#'){
             continue;
         }
         if(mid_input){
@@ -89,7 +102,9 @@ void Loader::loadFromFile()
                 }
                 _data[key] = data;
             } else if(!data.empty()){
-                _data[key] = data;
+                if(isInt(data)){
+                    _data[key] = std::atoi(data.c_str());
+                }
             }
         }
     }
@@ -97,7 +112,7 @@ void Loader::loadFromFile()
 
 //==================================================================================================
 
-const std::string& Loader::getValue(const std::string& key)
+const std::any& Loader::getValue(const std::string& key)
 {
     return _data[key];
 }
@@ -121,7 +136,9 @@ void Saver::saveToFile(const std::string& file)
     
 void Saver::saveToFile()
 {
-
+    for(const auto& element : _data){
+    
+    }
 }
 
 

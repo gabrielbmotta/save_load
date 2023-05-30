@@ -1,4 +1,6 @@
+# This is a comment
 ELEMENT1=3
+# This is also a comment
 ELEMENT2=<<<This is a string.>>>
 ELEMENT3=<<<This is a
 multiline
