@@ -20,9 +20,21 @@ public:
     void loadFromFile();
     const std::any& getValue(const std::string& key);
 
-// private:
+private:
+    void parseLine(const std::string& line);
+    void parseAsString(const std::string& key, const::std::string& value);
+    void parseAsInt(const std::string& key, const::std::string& value);
+    void parseMultilineString(std::string& str);
+
+    std::pair<std::string, std::string> splitKeyValue(const std::string& line);
+    
+    bool lineIsComment(const std::string& line);
+    bool valueIsString(const std::string& value);
+
     std::ifstream _infile;
     std::unordered_map<std::string, std::any> _data;
+
+
 };
 
 class Saver {

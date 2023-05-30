@@ -12,17 +12,6 @@ using Plaintext::Saver;
 
 //==================================================================================================
 
-bool isInt(const std::string& str){
-    for(const auto& c : str){
-        if(!std::isdigit(c)){
-            return false;
-        }
-    }
-    return true;
-}
-
-//==================================================================================================
-
 Loader::Loader(const std::string& file)
 :_infile(file)
 {
@@ -48,65 +37,13 @@ void Loader::loadFromFile(const std::string& file)
 
 void Loader::loadFromFile()
 {
-    std::cout << "1\n";
     if(!_infile.is_open()){
         return;
     }
 
-    std::cout << "2\n";
     std::string line;
-
-    bool mid_input = false;
-    std::string carryover_data;
-    std::string carryover_key;
-
     while(std::getline(_infile, line)){
-        std::cout << "[READ IN] " << line << "\n";
-        if(line.size() > 2 && line[0] == '#' && line[1] == '#' && line[2] == '#'){
-            continue;
-        }
-        if(mid_input){
-            std::cout << "In mid input\n";
-            auto ending = line.find(">>>");
-            if(ending == std::string::npos){
-                carryover_data += " " + line;
-                continue;
-            } else if(ending != 0) {
-                carryover_data += " " + line.substr(0, ending);
-            }
-            _data[carryover_key] = carryover_data;
-            carryover_data.clear();
-            carryover_key.clear();
-            mid_input = false;
-        } else {
-            std::cout << "Not in mid input\n";
-            auto equal = line.find("=");
-            if(equal == std::string::npos || equal == line.size() - 1){
-                std::cout << "HERE!\n";
-                return;
-            }
-            auto key = line.substr(0, equal);
-            auto data = line.substr(equal + 1);
-            if(data.size() > 3 && data[0] == '<' && data[1] == '<' && data[2] == '<'){
-                data = data.substr(3);
-                auto ending = data.find(">>>");
-                if(ending == std::string::npos){
-                    carryover_data = std::move(data);
-                    carryover_key = std::move(key);
-                    mid_input = true;
-                    continue;
-                } else if(ending != 3) {
-                    data = data.substr(0,ending); 
-                } else {
-                    data = "";
-                }
-                _data[key] = data;
-            } else if(!data.empty()){
-                if(isInt(data)){
-                    _data[key] = std::atoi(data.c_str());
-                }
-            }
-        }
+        parseLine(line);
     }
 }
 
@@ -115,6 +52,92 @@ void Loader::loadFromFile()
 const std::any& Loader::getValue(const std::string& key)
 {
     return _data[key];
+}
+
+//==================================================================================================
+
+void Loader::parseLine(const std::string& line)
+{
+    if(lineIsComment(line) || line.empty()){
+       return;
+    }
+
+    std::string key, value;
+    std::tie(key, value) = splitKeyValue(line);
+    if(key.empty() || value.empty()){
+        return;
+    }
+
+    if(valueIsString(value)){
+        parseAsString(key, value);
+    } else{
+        parseAsInt(key, value);
+    }
+}
+
+//==================================================================================================
+
+std::pair<std::string, std::string> Loader::splitKeyValue(const std::string& line)
+{
+    auto equal = line.find("=");
+    if(equal == std::string::npos || equal == line.size() - 1 || equal == 0){
+        return{"",""};
+    }
+    return {line.substr(0, equal), line.substr(equal + 1)};
+}
+
+//==================================================================================================
+
+bool Loader::lineIsComment(const std::string& line)
+{
+    return (line.size() > 2 && line[0] == '#' && line[1] == '#' && line[2] == '#');
+}
+
+//==================================================================================================
+
+bool Loader::valueIsString(const std::string& value)
+{
+    return (value.size() > 2 && value[0] == '<' && value[1] == '<' && value[2] == '<');
+}
+
+//==================================================================================================
+
+void Loader::parseAsString(const std::string& key, const::std::string& value)
+{
+    auto str_val = value.substr(3);
+    
+    auto ending = str_val.find(">>>");
+    if(ending == std::string::npos){
+        parseMultilineString(str_val);
+    } else if(ending != 3) {
+        str_val = str_val.substr(0,ending); 
+    } else {
+        str_val = "";
+    }
+    _data[key] = str_val;
+}
+
+//==================================================================================================
+
+void Loader::parseAsInt(const std::string& key, const::std::string& value)
+{
+    _data[key] = std::atoi(value.c_str());
+}
+
+//==================================================================================================
+
+void Loader::parseMultilineString(std::string& str)
+{
+    std::string line;
+    std::getline(_infile, line);
+
+    auto ending = line.find(">>>");
+    if(ending == std::string::npos){
+        str += " " + line;
+        parseMultilineString(str);
+    } else if(ending != 0) {
+        str += " " + line.substr(0, ending);
+    }
 }
 
 //==================================================================================================
