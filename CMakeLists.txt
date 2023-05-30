@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 
 option(BUILD_EXAMPLES "Build example application" OFF)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+
 set(SOURCES
     save_load.cpp
     save_load.h)

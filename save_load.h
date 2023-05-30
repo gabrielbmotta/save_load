@@ -35,19 +35,13 @@ public:
     void saveToFile(const std::string& file);
     void saveToFile();
 
-    template<typename T>
-    void setValue(const std::string& key, const T& value);
+    void setValue(const std::string& key, int value);
+    void setValue(const std::string& key, const std::string& value);
 
 private:
     std::ofstream _outfile;
-    std::unordered_map<std::string, std::any> _data;
+    std::unordered_map<std::string, std::string> _data;
 };
-
-
-template<typename T>
-void Saver::setValue(const std::string& key, const T& value){
-    _data[key] = value; 
-}
 
 } // namespace Plaintext
 

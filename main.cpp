@@ -16,5 +16,12 @@ int main(){
         }
     }
 
+    Plaintext::Saver saver("my_test_file2.txt");
+    saver.setValue("ONE", 55);
+    saver.setValue("TWO", "A string.");
+    saver.setValue("THREE","A multi-\nline\nstring.");
+
+    saver.saveToFile();
+
     return 0;
 }

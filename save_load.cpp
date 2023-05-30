@@ -62,7 +62,7 @@ void Loader::loadFromFile()
 
     while(std::getline(_infile, line)){
         std::cout << "[READ IN] " << line << "\n";
-        if(line.size() > 0 && line[0] == '#'){
+        if(line.size() > 2 && line[0] == '#' && line[1] == '#' && line[2] == '#'){
             continue;
         }
         if(mid_input){
@@ -119,6 +119,14 @@ const std::any& Loader::getValue(const std::string& key)
 
 //==================================================================================================
 
+Saver::Saver(const std::string& file)
+: _outfile(file)
+{
+    
+}
+
+//==================================================================================================
+
 void Saver::setFile(const std::string& file)
 {
     _outfile.open(file);
@@ -136,9 +144,26 @@ void Saver::saveToFile(const std::string& file)
     
 void Saver::saveToFile()
 {
+    if(!_outfile.is_open()){
+        return;
+    }
+
     for(const auto& element : _data){
-    
+        _outfile << element.first << "=" << element.second << "\n";
     }
 }
 
+//==================================================================================================
+
+void Saver::setValue(const std::string& key, int value)
+{
+    _data[key] = std::to_string(value);
+}
+
+//==================================================================================================
+
+void Saver::setValue(const std::string& key, const std::string& value)
+{
+    _data[key] = "<<<" + value + ">>>"; 
+}
 
