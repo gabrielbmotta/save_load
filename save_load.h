@@ -18,7 +18,13 @@ public:
 
     void loadFromFile(const std::string& file);
     void loadFromFile();
+
+    void loadSelectionFromFile(const std::string& file, const std::vector<std::string>& keys);
+    void loadSelectionFromFile(const std::vector<std::string>& keys);
+
     const std::any& getValue(const std::string& key);
+    int getInt(const std::string& key);
+    std::string getStr(const std::string& key);
 
 private:
     void parseLine(const std::string& line);
